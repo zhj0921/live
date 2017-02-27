@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.PrivilegeMapper">
+
+
+
+	<!-- 查询列表并且分页 -->
+	<select id="queryPrivilegeByPrivilegeQuery" parameterType="privilegeQuery"
+		resultType="privilege">
+		SELECT
+			distinct r.`name` roleName ,
+			r.id roleId,
+			r.status status,
+			r.qxzid  qxzId
+			
+		FROM
+			live_role r
+		LEFT JOIN live_role_privilege rp ON r.id = rp.role_id
+		LEFT JOIN live_privilegeg p ON rp.privilegeg_id = p.id
+		order by r.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select> 
+
+	<!-- 根据条件查询总数 -->
+	<select id="queryPrivilegeCountByPrivilegeQuery" parameterType="privilegeQuery"
+		resultType="int">
+		SELECT
+			 COUNT(distinct r.id)
+		FROM
+			live_role r
+		LEFT JOIN live_role_privilege rp ON r.id = rp.role_id
+		LEFT JOIN live_privilegeg p ON rp.privilegeg_id = p.id
+	</select>
+
+	<!-- 根据id查询 -->
+	<select id="queryRoleById" parameterType="int" resultType="role">
+		select id,status,name,qxzid qxid from live_role where id = #{id}
+	</select>
+
+	
+
+	<!-- 删除 权限组-->
+	<delete id="deleteRoleById" parameterType="int">
+		delete from live_role
+		where id= #{id}
+	</delete>
+	<!-- 删除 权限组中间表-->
+	<delete id="deleteRPById" parameterType="int">
+		DELETE from live_role_privilege where role_id = #{id}
+	</delete>
+
+	<insert id="insertAdmin" parameterType="admin">
+		INSERT INTO
+		xy_admin (
+		name,
+		password,
+		adminname,
+		telphone,
+		states,
+		role_id,
+		last_login_time )
+		VALUES
+		( #{name},
+		#{password},
+		#{adminname},
+		#{telphone},
+		#{states},
+		#{role_id},
+		#{last_login_time} )
+	</insert>
+
+	<select id="findMenuByAdminName" parameterType="String"
+		resultType="privilege">
+		SELECT
+			distinct p.*
+		FROM
+		live_privilegeg p
+		INNER JOIN live_role_privilege rpg ON p.id = rpg.privilegeg_id
+		INNER JOIN live_role r ON rpg.role_id = r.id
+		INNER JOIN live_admin a ON r.id = a.role_id
+		WHERE
+		r.status = 1 and 
+		a.`name` = #{name}
+		ORDER BY p.sort Asc 
+	</select>
+
+	<!-- 查询所有 -->
+	<select id="findAll" resultType="Privilege">
+		select * from live_privilegeg order by sort asc
+	</select>
+	
+	
+	<!-- 根据用户名查询 -->
+	<select id="findByConditions" parameterType="String" resultType="privilege">
+		SELECT
+		distinct p.*
+		FROM
+		live_privilegeg p
+		INNER JOIN live_role_privilege rpg ON p.id = rpg.privilegeg_id
+		INNER JOIN live_role r ON rpg.role_id = r.id
+		INNER JOIN live_admin a ON r.id = a.role_id
+		WHERE
+		r.status = 1 and 
+		a.`name` = #{name}
+	</select>
+
+
+
+	<!-- 增加权限组 -->
+	<insert id="addRole" parameterType="role" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO live_role (NAME ,STATUS , qxzid) VALUES(#{name} ,#{status} ,#{qxid})
+	</insert>
+	
+	<!-- 增加权限组对应的权限 -->
+	<insert id="addRolePrivilege" parameterType="privilege" >
+		INSERT INTO live_role_privilege (privilegeg_id ,role_id ) VALUES(#{id} ,#{roleId})
+	</insert>
+	
+	<!-- 删除权限组对应的权限 -->
+	<insert id="deleRolePrivilegeByRoleId" parameterType="int" >
+		DELETE from live_role_privilege where role_id = #{id}
+	</insert>
+
+	<!-- 根据id查询权限名称  -->
+	<select id="queryPrivilegeTitleById" parameterType="int" resultType="String">
+		SELECT title from live_privilegeg where id = #{id}
+	</select>
+	
+	<!-- 更新 -->
+	<update id="updateRole" parameterType="role">
+		update live_role 
+		<set>
+			<if test="name !=null and name!=''">
+				name = #{name},
+			</if>
+			<if test="qxid !=null">
+				qxzid = #{qxid}
+			</if>
+			
+		</set>
+		WHERE id= #{id}
+	</update>
+	
+	<!-- 启用 -->
+	<update id="enabledRoleById" parameterType="int">
+		update live_role SET STATUS = 1 where id = #{id}
+	</update>
+	
+	<!-- 禁用 -->
+	<update id="disableRoleById" parameterType="int">
+		update live_role SET STATUS = 2 where id = #{id}
+	</update>
+	
+	<!-- 查询所有权限 -->
+	<select id="queryPrivileges" resultType="privilege">
+		SELECT * from live_privilegeg 
+	</select>
+	
+
+
+
+	<!-- 查询所有 -->
+	<select id="findAllMenu" parameterType="java.lang.Integer" resultType="Privilege">
+		select * from live_privilegeg where classify=#{classify} order by sort asc
+	</select>
+	
+	
+	<select id="findMenuByAdminNameMenu" parameterType="String"
+		resultType="privilege">
+		SELECT
+			distinct p.*
+		FROM
+		live_privilegeg p
+		INNER JOIN live_role_privilege rpg ON p.id = rpg.privilegeg_id
+		INNER JOIN live_role r ON rpg.role_id = r.id
+		INNER JOIN live_admin a ON r.id = a.role_id
+		WHERE
+		r.status = 1 and 
+		a.`name` = #{name}
+		and p.classify=#{classify}
+		ORDER BY p.sort Asc 
+	</select>
+
+
+</mapper>

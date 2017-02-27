@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.AdminMapper">
+
+
+
+	<!-- 查询管理员列表并且分页 -->
+	<select id="queryAdminByAdminQuery" parameterType="adminQuery"
+		resultType="admin">
+		SELECT
+		a.id,
+		a.adminname,
+		a. NAME AS NAME,
+		r. NAME AS roleName,
+		a.telphone,
+		a.states,
+		a.last_login_time last_login_time
+		FROM live_admin a
+		LEFT JOIN
+		live_role r
+		on
+		a.role_id = r.id
+		where r.id !=0
+		order by a.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+
+	<!-- 根据条件查询总数 -->
+	<select id="queryAdminCountByAdminQuery" parameterType="adminQuery"
+		resultType="int">
+		SELECT
+		count(1) 
+		FROM live_admin a
+		LEFT JOIN
+		live_role r
+		on
+		a.role_id = r.id
+		where r.id !=0
+	</select>
+	
+	<!-- 根据登录帐号查询-->
+	<select id="queryLoginName" parameterType="String" resultType="admin">
+		SELECT * from live_admin where name = #{loginname}
+	</select>
+
+	<!-- 根据id查询客户信息 -->
+	<select id="queryAdminById" parameterType="int" resultType="admin">
+		SELECT
+		a.id,
+		r.id role_id,
+		a.adminname,
+		a. NAME AS NAME,
+		r. NAME AS roleName,
+		a.telphone
+		FROM
+		live_admin a,
+		live_role r
+		WHERE
+		a.role_id = r.id 
+		and a.id = #{id}
+		order by a.id desc
+	</select>
+
+	<!-- 更新操作 -->
+	<update id="updateAdmin" parameterType="admin">
+		update live_admin
+		<set>
+			<if test="name !=null || name != ''">
+				name =#{name},
+			</if>
+			<if test="adminname !=null || adminname != ''">
+				adminname = #{adminname},
+			</if>
+			<if test="password !=null || password != ''"> 
+				password = #{password},
+			</if>
+			<if test="telphone !=null || telphone != ''"> 
+				telphone = #{telphone}, 
+			</if>
+			<if test="role_id !=null || role_id != ''"> 
+				role_id = #{role_id}
+			</if>
+			
+		</set>
+		WHERE id =#{id}
+
+	</update>
+	
+	<!-- 更新登录时间 -->
+	<update id="updateLastLoginTime" parameterType="admin">
+		update live_admin set last_login_time = #{last_login_time}  where id = #{id}
+	</update>
+
+	<!-- 删除 -->
+	<delete id="deleteAdminById" parameterType="int">
+		delete from live_admin
+		where id= #{id}
+	</delete>
+
+	<!-- 插入数据 -->
+	<insert id="insertAdmin" parameterType="admin">
+		INSERT INTO
+		live_admin (
+		name,
+		password,
+		adminname,
+		telphone,
+		states,
+		role_id,
+		last_login_time
+		)
+		VALUES
+		(
+		#{name},
+		#{password},
+		#{adminname},
+		#{telphone},
+		#{states},
+		#{role_id},
+		#{last_login_time}
+		)
+	</insert>
+
+	<!-- 验证登录 -->
+	<select id="findByConditions" parameterType="String" resultType="admin">
+		select * from live_admin where states = 1 and name = #{username}
+	</select>
+
+	<!-- 启用 -->
+	<update id="enabledAdminById" parameterType="int">
+		UPDATE live_admin set states= 1 where id = #{id}
+	</update>
+	<!-- 禁用 -->
+	<update id="disableAdminById" parameterType="int">
+		UPDATE live_admin set states= 2 where id = #{id}
+	</update>
+
+
+</mapper>

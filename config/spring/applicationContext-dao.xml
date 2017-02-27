@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/task
+   		http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+	<!-- 加载外部资源文件 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	
+	<!-- 管理数据源 druid数据源-->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${jdbc.driver}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+	
+	<!-- 管理sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据源 -->
+		<property name="dataSource" ref="dataSource"/>
+		
+		<!-- 加载mybatis的全局配置文件 -->
+		<property name="configLocation" value="classpath:mybatis/SqlMapConfig.xml"/>
+	</bean>
+	
+	<!-- spring批量管理代理对象 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.dongwei.kangbao.mapper"/>
+	</bean>
+	
+	<!-- 配置shiro过滤器的工厂bean -->
+	<bean id="ShiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- 注入shiro安全管理器 -->
+		<property name="securityManager" ref="securityManager"/>
+		<!-- 登录失败，跳转登录界面 -->
+		<property name="loginUrl" value="/login.jsp"/>
+		<!-- 登录成功，跳转首页 -->
+		<property name="successUrl" value="/index.jsp"/>
+		<!-- 权限不足，跳转到权限不足界面 -->
+		<property name="unauthorizedUrl" value="/unauthorizedUrl.jsp"/>
+		<!-- 配置权限过滤链 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/css/** = anon
+				/js/** = anon
+				/img/** = anon
+				/login.jsp = anon
+				/index.jsp = anon
+				/homepage/login.do = anon	
+				/ueditor/** = anon	
+				
+				<!-- /page_base_staff.action = perms["staff" -->
+				/user/list.do = perms["userList"]
+				/room/list.do = perms["roomList"]
+				/room/giftList.do= perms["giftList"]
+				/message/list.do= perms["messageList"]
+				/feedback/list.do= perms["feedBackList"]
+				/feedback/typelist.do= perms["feedBackTypeList"]
+				/system/list.do= perms["systemList"]
+				
+				/carousel/hot.do= perms["hot"]
+				/bank/list.do= perms["bank"]
+				/cm/doctors.do= perms["cmDoctors"]
+				/health/healthClass.do= perms["healthClass"]
+				/health/hospital.do= perms["healthHospital"]
+				/health/combo.do= perms["healthCombo"]
+				/aisle/city.do= perms["aisleCity"]
+				/aisle/hospitalList.do= perms["aisleHospitalList"]
+				/aisle/divisionList.do= perms["aisleDivisionList"]
+				/aisle/jobtitleList.do= perms["aisleJobtitleList"]
+				/care/careTypeList.do= perms["careCareTypeList"]
+				/care/careUserList.do= perms["careCareUserList"]
+				/assess/list.do= perms["assesslist"]
+				
+				/carousel/list.do= perms["carouselList"]
+				/privilege/list.do= perms["privilegeList"]
+				/admin/list.do= perms["adminList"]
+				<!-- /system/db.do= perms["dbcopy"] -->
+				/**= authc
+			</value>
+		</property>
+	</bean>
+	<!-- 配置shiro安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="XYRealm"/>
+		<!-- 给安全管理器注入缓存管理器 -->
+		<property name="cacheManager" ref="ehcacheManager"/>
+	</bean>
+	<!-- 配置自定义的Realm -->
+	<bean id="XYRealm" class="com.dongwei.kangbao.utils.XYRealm"/>
+	<!-- 配置spring的自动代理 -->
+	<bean id="defaultAdvisorAutoProxyCreator" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+		<!-- 该属性为 false是使用java的代理方式(接口代理), 如果是true:使用cglib代理方式(继承代理) -->
+		<property name="proxyTargetClass" value="false"/>
+	</bean>
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"/>
+	<!-- 启用ehcachemanager -->
+	<bean id="ehcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml"/>
+	</bean>
+	
+	
+	
+</beans>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.SysMapper" >
+
+	<!-- 查询列表并且分页 -->
+	<select id="queryAndroidByAndroidQuery" parameterType="androidversionQuery" resultType="androidversion">
+		SELECT * from live_androidversion  where identify = 1
+		order by id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 根据条件查询总数 -->
+	<select id="queryAndroidCountByAndroidQuery" parameterType="androidversionQuery" resultType="int">
+		SELECT count(1) from live_androidversion where identify = 1
+	</select>
+	
+	
+	<!-- 添加 -->
+	<insert id="addAndroid" parameterType="androidversion">
+		INSERT INTO live_androidversion (path,version,describe,identify) VALUES (#{path},#{version},#{describe},#{identify});
+	</insert>
+	
+	<!-- 删除 -->
+	<delete id="deleteAndroidById" parameterType="int">
+		DELETE from live_androidversion where id = #{id}
+	</delete>
+	
+	
+</mapper>

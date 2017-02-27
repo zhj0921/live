@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.RoomMapper">
+
+	<!-- 查询客户列表并且分页 -->
+	<sql id="query_room">
+
+		<if test="userName !=null and userName !=''">
+			and u.name like "%"#{userName}"%"
+		</if>
+		<if test="playbackstatus != null and playbackstatus !=''">
+			and r.playbackstatus=#{playbackstatus}
+		</if>
+
+	</sql>
+	
+
+	<!-- 通过条件查询直播间列表 -->
+	<select id="queryRoomByRoomQuery" parameterType="RoomQuery" resultType="room">
+		select 
+			r.*
+		from live_room r, live_user u where r.uid=u.id
+		<include refid="query_room" />
+		<if test="timeStart !=null ">
+			<![CDATA[and r.starttime >= #{timeStart} ]]> 
+		</if>
+		<if test="timeEnd !=null and timeStart ==null">
+			<![CDATA[and r.endtime <= #{timeEnd}]]> 
+		</if>
+		<if test="timeEnd !=null ">
+			<![CDATA[or r.endtime <= #{timeEnd}]]> 
+		</if>
+			order by r.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 查询订单 -->
+	<select id="queryRoomCountByRoomQuery" resultType="java.lang.Integer">
+		select count(1) from live_room r, live_user u where r.id=u.id
+			<include refid="query_room" />
+		<if test="timeStart !=null ">
+			<![CDATA[and r.starttime >= #{timeStart} ]]> 
+		</if>
+		<if test="timeEnd !=null and timeStart ==null">
+			<![CDATA[and r.endtime <= #{timeEnd}]]> 
+		</if>
+		<if test="timeEnd !=null ">
+			<![CDATA[or r.endtime <= #{timeEnd}]]> 
+		</if>
+	</select>
+	
+	<!-- 通过id修改直播间的回放状态_启用 -->
+	<update id="updateRoomIsPlaybackstatusById" parameterType="java.lang.Integer">
+		update live_room set playbackstatus=0 where id=#{id}
+	</update>
+	
+	<!-- 通过id修改直播间的回放状态_禁用 -->
+	<update id="updateRoomNoPlaybackstatusById" parameterType="java.lang.Integer">
+		update live_room set playbackstatus=1 where id=#{id}
+	</update>
+	
+	<!-- 通过直播间id查询送礼物列表 -->
+	<select id="queryGiveGiftListById" parameterType="RoomQuery" resultType="givingGifts">
+		select g.*, u.nickname userName from live_givinggifts g, live_user_info u where g.uid=u.uid and rid=#{id} 
+		order by g.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 通过直播间id查询送礼物列表的数量 -->
+	<select id="queryGiveGiftCountById" parameterType="RoomQuery" resultType="java.lang.Integer">
+		select count(1) from live_givinggifts g, live_user u where g.uid=u.id and rid=#{id} 
+	</select>
+	
+	<!-- 通过直播间id查询评论列表 -->
+	<select id="queryCommentListById" parameterType="RoomQuery" resultType="comment">
+		select g.*, u.nickname userName from live_comment g, live_user_info u where g.uid=u.uid and rid=#{id} 
+		order by g.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 通过直播间id查询评论列表的数量 -->
+	<select id="queryCommentCountById" parameterType="RoomQuery" resultType="java.lang.Integer">
+		select count(1) from live_comment g, live_user u where g.uid=u.id and rid=#{id} 
+	</select>
+
+	<!-- 通过直播间id查询回放列表 -->
+	<select id="queryPlayBackListById" parameterType="RoomQuery" resultType="playBack">
+		select g.*, u.nickname userName from live_playback g, live_user_info u where g.uid=u.uid and rid=#{id} 
+		order by g.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 通过直播间id查询回放列表的数量 -->
+	<select id="queryPlayBackCountById" parameterType="RoomQuery" resultType="java.lang.Integer">
+		select count(1) from live_playback g, live_user u where g.uid=u.id and rid=#{id} 
+	</select>
+	
+	<!-- 通过条件查询礼物列表 -->
+	<select id="queryGiftListById" parameterType="GiftQuery" resultType="gift">
+		select * from live_gift
+		<where>
+			<if test="specialeffects != null and specialeffects !=2">
+				specialeffects=#{specialeffects}
+			</if>
+			<if test="status != null and status !=2">
+				status=#{status}
+			</if>
+		</where>
+			order by id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 通过条件查询礼物列表的个数 -->
+	<select id="queryGiftCountById" parameterType="GiftQuery" resultType="java.lang.Integer">
+		select count(1) from live_gift
+		<where>
+			<if test="specialeffects != null and specialeffects !=2">
+				specialeffects=#{specialeffects}
+			</if>
+			<if test="status != null and status !=2">
+				status=#{status}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 修改礼物状态为启用 -->
+	<update id="updateGiftIsStatusById" parameterType="java.lang.Integer">
+		update live_gift set status=0 where id=#{id}
+	</update>
+	
+	<!-- 修改礼物状态为禁用 -->
+	<update id="updateGiftNoStatusById" parameterType="java.lang.Integer">
+		update live_gift set status=1 where id=#{id}
+	</update>
+	
+	<!-- 删除礼物 -->
+	<delete id="deleteGiftById" parameterType="java.lang.Integer">
+		delete from live_gift where id=#{id}
+	</delete>
+	
+	<!-- 通过id查询礼物信息 -->
+	<select id="queryGiftById" parameterType="java.lang.Integer" resultType="gift">
+		select * from live_gift where id=#{id}
+	</select>
+	
+	<!-- 通过id更新礼物 -->
+	<update id="updateGiftById" parameterType="Gift">
+		update live_gift set name=#{name}, giftpicture=#{giftpicture},
+		voucher=#{voucher}, specialeffects=#{specialeffects}
+		where id=#{id}
+	</update>
+	
+	<!-- 添加礼物 -->
+	<insert id="insertGift" parameterType="Gift">
+		insert into live_gift (name, giftpicture, voucher, specialeffects, time) values (
+		#{name}, #{giftpicture}, #{voucher}, #{specialeffects}, #{addtime}
+		)
+	</insert>
+	
+	<!-- 通过用户id查询用户名称 -->
+	<select id="queryUserInfoByUId" parameterType="java.lang.Integer" resultType="userInfo">
+		select * from live_user_info where uid=#{id}
+	</select>
+	
+</mapper>

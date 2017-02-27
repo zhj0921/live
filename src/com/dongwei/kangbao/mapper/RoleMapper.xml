@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.RoleMapper" >
+
+	
+
+	<!-- 查询管理员列表并且分页 -->
+	<select id="queryAdminByAdminQuery" parameterType="adminQuery" resultType="admin">
+		SELECT
+		a.adminname,
+		  a.name,
+		  r.name,
+		 a.telphone,
+		 a.states,
+		  a.last_login_time
+		FROM live_admin a ,live_role r
+		where	a.role_id = r.id and a.role_id = #{role_id}
+		order by a.id desc
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 根据条件查询总数 -->
+	<select id="queryAdminCountByAdminQuery" parameterType="adminQuery" resultType="int">
+		SELECT count(1)
+		FROM live_admin
+		
+	</select>
+	
+	<!-- 根据id查询客户信息 -->
+	<select id="queryRoleById" parameterType="int" resultType="role">
+		select * from live_role where id = #{id}
+	</select>
+	
+	<!-- 更新操作 -->
+	<!-- <update id="update" parameterType="admin">
+		update live_admin
+		<set>
+			<if test="cust_name!=null">
+				cust_name=#{cust_name},
+			</if>
+			<if test="cust_user_id!=null">
+				cust_user_id=#{cust_user_id},
+			</if>
+			<if test="cust_create_id!=null">
+				cust_create_id=#{cust_create_id},
+			</if>
+			<if test="cust_source!=null">
+				cust_source=#{cust_source},
+			</if>
+			<if test="cust_industry!=null">
+				cust_industry=#{cust_industry},
+			</if>
+			<if test="cust_level!=null">
+				cust_level=#{cust_level},
+			</if>
+			<if test="cust_linkman!=null">
+				cust_linkman=#{cust_linkman},
+			</if>
+			<if test="cust_phone!=null">
+				cust_phone=#{cust_phone},
+			</if>
+			<if test="cust_mobile!=null">
+				cust_mobile=#{cust_mobile},
+			</if>
+			<if test="cust_zipcode!=null">
+				cust_zipcode=#{cust_zipcode},
+			</if>
+			<if test="cust_address!=null">
+				cust_address=#{cust_address},
+			</if>
+			<if test="cust_createtime!=null">
+				cust_createtime=#{cust_createtime},
+			</if>
+		</set>
+		WHERE cust_id=#{cust_id}
+	</update> -->
+	
+	<!-- 删除 -->
+	<delete id="deleteAdminById" parameterType="int">
+		delete from live_admin where id=#{id}
+	</delete>
+	
+	<insert id="insertAdmin" parameterType="admin" >
+		INSERT INTO live_admin (
+			name,
+			password,
+			adminname,
+			telphone,
+			states,
+			role_id,
+			last_login_time
+			
+		)
+		VALUES
+			(
+				#{name},
+				#{password},
+				#{adminname},
+				#{telphone},
+				#{states},
+				#{role_id},
+				#{last_login_time}
+			)
+	</insert>
+	
+	<select id="queryAdminByName" parameterType="String" resultType="admin">
+		select * from live_admin where name = #{username}
+	</select>
+	
+	<!-- 查询所以角色 -->
+	<select id="findAll" resultType="role">
+		select * from live_role where status =  1
+	</select>
+	
+</mapper>

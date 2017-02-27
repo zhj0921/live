@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dongwei.kangbao.mapper.SiteMapper">
+
+	<select id="querySiteSettings" resultType="siteSettings">
+		select * from live_site_settings order by id desc
+	</select>
+	
+	<!-- 通过id修改基本配置状态——启用 -->
+	<update id="updateSiteIsStatusById" parameterType="java.lang.Integer">
+		update live_site_settings set status=0 where id=#{id}
+	</update>
+	
+	<!-- 通过id修改基本配置状态——禁用 -->
+	<update id="updateSiteNoStatusById" parameterType="java.lang.Integer">
+		update live_site_settings set status=1 where id=#{id}
+	</update>
+	
+	<!-- 通过id查出基本配置 -->
+	<delete id="delSiteSettingsById" parameterType="java.lang.Integer">
+		delete from live_site_settings where id=#{id}
+	</delete>
+	
+	<!-- 通过id查询基本配置信息 -->
+	<select id="querySiteSettingsById" parameterType="java.lang.Integer" resultType="siteSettings">
+		select * from live_site_settings where id=#{id}
+	</select>
+	
+	<!-- 更新基本站点配置 -->
+	<update id="updateSiteSettingsById" parameterType="SiteSettings">
+		update live_site_settings set name=#{name}, domain_name=#{domain_name}, enterprise=#{enterprise} where id=#{id}
+	</update>
+	
+	<!-- 添加基本站点配置 -->
+	<insert id="insertSiteSettings" parameterType="SiteSettings">
+		insert into live_site_settings (name, domain_name, enterprise) 
+		values (#{name,jdbcType=VARCHAR}, #{domain_name,jdbcType=VARCHAR}, #{enterprise,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 查询站点配置 -->
+	<select id="querySiteConfiguration" resultType="siteConfiguration">
+		select * from live_site_configuration order by id desc
+	</select>
+	
+	<!-- 添加站点配置 -->
+	<insert id="insertSiteConfiguration" parameterType="SiteConfiguration">
+		insert into live_site_configuration (title, key_word, `describe`) 
+		values (#{title,jdbcType=VARCHAR}, #{key_word,jdbcType=VARCHAR}, #{describe,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 通过id修改站点配置状态——启用 -->
+	<update id="updateSiteCIsStatusById" parameterType="java.lang.Integer">
+		update live_site_configuration set status=0 where id=#{id}
+	</update>
+	
+	<!-- 通过id修改站点配置状态——禁用 -->
+	<update id="updateSiteCNoStatusById" parameterType="java.lang.Integer">
+		update live_site_configuration set status=1 where id=#{id}
+	</update>
+	
+	<!-- 通过id删除站点配置 -->
+	<delete id="delSiteConfigurationById" parameterType="java.lang.Integer">
+		delete from live_site_configuration where id=#{id}
+	</delete>
+	
+	<!-- 通过id查询站点配置 -->
+	<select id="querySiteConfigurationById" parameterType="java.lang.Integer" resultType="siteConfiguration">
+		select * from live_site_configuration where id=#{id}
+	</select>
+	
+	<!-- 更新站点配置 -->
+	<update id="updateSiteConfigurationById" parameterType="SiteConfiguration">
+		update live_site_configuration set title=#{title}, key_word=#{key_word}, `describe`=#{describe} where id=#{id}
+	</update>
+	
+</mapper>
